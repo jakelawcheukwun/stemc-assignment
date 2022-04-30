@@ -5,6 +5,7 @@ This Terraform deployment consists of 3 main components:
 1. VPC
 2. ECS cluster
 3. ECS service
+
 These 3 components are structured as independent modules in the code.
 When successfully applied in Terraform, the http server container can be reached at the public IP of the ENI of the running ECS task.
 
