@@ -1,3 +1,51 @@
+resource "aws_lb" "http_lb" {
+  name               = "http-lb"
+  internal           = false
+  load_balancer_type = "network"
+  subnets            = var.designated_subnets
+
+  enable_deletion_protection = false
+  
+  
+}
+
+# need a listener tf resource
+resource "aws_lb_listener" "front_end" {
+  load_balancer_arn = aws_lb.http_lb.arn
+  port              = "80"
+  protocol          = "TCP"
+  # certificate_arn   = "arn:aws:iam::187416307283:server-certificate/test_cert_rab3wuqwgja25ct3n4jdj2tzu4"
+  # alpn_policy       = "HTTP2Preferred"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.front_end.arn
+  }
+}
+
+# TODO: could be missing IAM role for ECS LB etcetc as shown in AWS docs
+
+
+# here's the attachment tf resource
+resource "aws_lb_target_group_attachment" "front_end" {
+  target_group_arn = aws_lb_target_group.front_end.arn
+  # we need the full ARN; container ID doesn't work
+  # TODO: fetch ECS container ID through tf data source object
+  target_id        = "9b84b52f-278f-46c1-a343-b557627a1de9"
+  port             = 80
+}
+
+# Alternative: target the ENI IP of the ECS container
+resource "aws_lb_target_group" "front_end" {
+  name        = "http-lb-tg"
+  port        = 80
+  protocol    = "TCP"
+  # for IP target option
+  # target_type = "ip"
+  vpc_id      = var.vpc_id
+}
+
+
 resource "aws_security_group" "allow_http" {
   name        = "allow_http"
   description = "Allow http inbound traffic"

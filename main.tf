@@ -30,7 +30,7 @@ module "vpc" {
   }
 }
 
-#----- ECS --------
+#------- ECS --------
 
 module "ecs" {
   source = "terraform-aws-modules/ecs/aws"
